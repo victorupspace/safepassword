@@ -306,8 +306,24 @@ body {
 }
 
 /* ─── Password output ─── */
-.pw-output { display: none; }
-.pw-output.show { display: block; animation: fadeIn .25s ease; }
+.pw-output { display: block; }
+.pw-output.show { animation: fadeIn .25s ease; }
+.pw-output:not(.show) .pw-field,
+.pw-output:not(.show) .strength-row,
+.pw-output:not(.show) .entropy-row { display: none; }
+.pw-output.show .pw-placeholder { display: none; }
+
+.pw-placeholder {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--gray-600);
+  font-size: 12px;
+  border: 1px dashed var(--gray-700);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+}
 
 .pw-field {
   background: var(--gray-900);
@@ -681,6 +697,7 @@ body {
       <!-- Output -->
       <div class="pw-output" id="pwOut">
         <div class="divider"></div>
+        <div class="pw-placeholder">Clique para gerar a sua primeira senha</div>
 
         <div class="pw-field">
           <div class="pw-field-top">
@@ -732,7 +749,7 @@ body {
 
   <!-- ── Footer ── -->
   <footer class="footer">
-    <a href="https://www.buymeacoffee.com" target="_blank" rel="noopener" class="bmc-btn">
+    <a href="https://buymeacoffee.com/victorupspace" target="_blank" rel="noopener" class="bmc-btn">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
       <span class="bmc-sep"></span>
       Me pague um café ☕
@@ -842,7 +859,6 @@ function clearHist(){
   renderHist();
 }
 
-document.addEventListener('DOMContentLoaded',()=>setTimeout(generate,600));
 </script>
 </body>
 </html>
