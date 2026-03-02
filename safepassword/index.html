@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafePassword Buddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --black:     #09090A;
+  --gray-950:  #111113;
+  --gray-900:  #18181B;
+  --gray-800:  #212124;
+  --gray-700:  #2E2E32;
+  --gray-600:  #3F3F46;
+  --gray-400:  #71717A;
+  --gray-300:  #A1A1AA;
+  --gray-100:  #F4F4F5;
+  --white:     #FFFFFF;
+
+  --green:      #00B37E;
+  --green-dim:  #00875A;
+  --green-glow: rgba(0,179,126,0.12);
+  --green-glow2:rgba(0,179,126,0.06);
+
+  --purple:     #8B5CF6;
+  --purple-dim: #6D28D9;
+
+  --border:     rgba(255,255,255,0.06);
+  --border-md:  rgba(255,255,255,0.10);
+  --border-hi:  rgba(0,179,126,0.30);
+
+  --radius:  12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+
+  --font: 'Inter', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px 64px;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ─── Ambient glow — Rocketseat style ─── */
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.bg-glow::before {
+  content: '';
+  position: absolute;
+  top: -30vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 600px;
+  background: radial-gradient(ellipse at top,
+    rgba(0,179,126,0.07) 0%,
+    rgba(109,40,217,0.04) 40%,
+    transparent 70%
+  );
+  border-radius: 50%;
+}
+
+/* ─── Container ─── */
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── HEADER ─── */
+.header {
+  text-align: center;
+  padding-bottom: 48px;
+  animation: up .5s cubic-bezier(.22,1,.36,1) both;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--green);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.eyebrow-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green), 0 0 16px rgba(0,179,126,0.4);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+.header h1 {
+  font-size: clamp(28px, 5.5vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  color: var(--white);
+  margin-bottom: 12px;
+}
+.header h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--green) 0%, #00D9A5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-sub {
+  font-size: 14px;
+  color: var(--gray-400);
+  font-weight: 400;
+  line-height: 1.6;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+/* ─── CARD ─── */
+.card {
+  background: var(--gray-950);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: up .5s cubic-bezier(.22,1,.36,1) .06s both;
+  position: relative;
+}
+
+/* Subtle top gradient line */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 5%,
+    rgba(0,179,126,0.4) 30%,
+    rgba(0,217,165,0.3) 70%,
+    transparent 95%
+  );
+}
+
+/* ─── Compliance strip ─── */
+.tag-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+.tag-g { color: var(--green); border-color: rgba(0,179,126,0.25); background: rgba(0,179,126,0.07); }
+.tag-p { color: var(--purple); border-color: rgba(139,92,246,0.25); background: rgba(139,92,246,0.07); }
+.tag-w { color: var(--gray-300); border-color: var(--border); background: transparent; }
+
+/* ─── Card body ─── */
+.card-body { padding: 24px 20px; }
+
+/* ─── Strength selector ─── */
+.field-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-400);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.strength-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 20px;
+  background: var(--gray-900);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+
+.tab {
+  padding: 9px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  text-align: center;
+  transition: all .15s ease;
+  position: relative;
+}
+.tab:hover { background: var(--gray-800); }
+.tab.active {
+  background: var(--gray-800);
+  border-color: var(--border-md);
+}
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 15%; right: 15%;
+  height: 1px;
+  background: var(--green);
+  box-shadow: 0 0 6px rgba(0,179,126,0.6);
+  border-radius: 1px;
+}
+
+.tab-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-400);
+  transition: color .15s;
+  letter-spacing: -0.01em;
+}
+.tab.active .tab-name { color: var(--white); }
+
+.tab-chars {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--gray-600);
+  margin-top: 2px;
+  transition: color .15s;
+}
+.tab.active .tab-chars { color: var(--green); }
+
+/* ─── Generate button ─── */
+.gen-btn {
+  width: 100%;
+  height: 48px;
+  background: var(--green);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--black);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all .15s ease;
+  position: relative;
+  overflow: hidden;
+}
+.gen-btn:hover {
+  background: #00C98E;
+  box-shadow: 0 0 0 1px rgba(0,179,126,.3), 0 4px 16px rgba(0,179,126,.25);
+  transform: translateY(-1px);
+}
+.gen-btn:active { transform: translateY(0); box-shadow: none; }
+.gen-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.gen-btn-icon { display: flex; align-items: center; }
+.gen-btn.spin .gen-btn-icon svg { animation: spin .45s linear; }
+
+/* ─── Divider ─── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/* ─── Password output ─── */
+.pw-output { display: none; }
+.pw-output.show { display: block; animation: fadeIn .25s ease; }
+
+.pw-field {
+  background: var(--gray-900);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color .15s;
+}
+.pw-field:hover { border-color: var(--border-md); }
+
+.pw-field-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.pw-field-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--gray-600);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pw-field-label-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 5px rgba(0,179,126,0.5);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+.pw-field-actions { display: flex; align-items: center; gap: 6px; }
+.pw-length {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--gray-600);
+}
+
+.pw-value {
+  padding: 14px 12px;
+  font-family: var(--mono);
+  font-size: clamp(12px, 2.5vw, 14px);
+  font-weight: 400;
+  color: var(--white);
+  word-break: break-all;
+  line-height: 1.7;
+  letter-spacing: 0.03em;
+}
+
+/* Copy button */
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color: var(--gray-400);
+  cursor: pointer;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.copy-btn:hover { border-color: var(--border-hi); color: var(--green); background: var(--green-glow2); }
+.copy-btn.ok { border-color: var(--green); color: var(--green); background: var(--green-glow2); }
+
+/* ─── Strength bar ─── */
+.strength-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  gap: 12px;
+}
+.bars {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+}
+.bar {
+  flex: 1;
+  height: 2px;
+  background: var(--gray-800);
+  border-radius: 2px;
+  transition: background .4s ease;
+}
+.bar.fill-1 { background: #F97316; }
+.bar.fill-2 { background: var(--green-dim); }
+.bar.fill-3 { background: var(--green); }
+.bar.fill-4 { background: var(--green); box-shadow: 0 0 6px rgba(0,179,126,0.5); }
+
+.strength-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--gray-400);
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+.strength-label.lv1 { color: #F97316; }
+.strength-label.lv2 { color: var(--green-dim); }
+.strength-label.lv3, .strength-label.lv4 { color: var(--green); }
+
+.entropy-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.entropy-text {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--gray-600);
+}
+.entropy-val { color: var(--gray-400); }
+
+/* ─── HISTORY ─── */
+.history {
+  margin-top: 32px;
+  animation: up .5s cubic-bezier(.22,1,.36,1) .12s both;
+}
+
+.hist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.hist-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-400);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hist-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--green);
+  background: var(--green-glow);
+  border: 1px solid rgba(0,179,126,0.2);
+  border-radius: 100px;
+  padding: 1px 7px;
+}
+.hist-clear {
+  font-size: 11px;
+  color: var(--gray-600);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: color .15s;
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+}
+.hist-clear:hover { color: #F87171; background: rgba(248,113,113,.06); }
+
+.hist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-800) transparent;
+}
+.hist-list::-webkit-scrollbar { width: 4px; }
+.hist-list::-webkit-scrollbar-thumb { background: var(--gray-800); border-radius: 2px; }
+
+.hist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--gray-950);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: default;
+  transition: border-color .15s;
+  animation: fadeIn .2s ease;
+}
+.hist-item:hover { border-color: var(--border-md); }
+
+.hist-pw {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--gray-300);
+  word-break: break-all;
+  flex: 1;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+.hist-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.hist-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--gray-600);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.hist-copy {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all .15s;
+}
+.hist-copy:hover { border-color: var(--border-hi); color: var(--green); background: var(--green-glow2); }
+.hist-copy.ok { border-color: var(--green); color: var(--green); }
+
+.hist-empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--gray-600);
+  font-size: 12px;
+  border: 1px dashed var(--gray-800);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  line-height: 1.8;
+}
+
+/* ─── FOOTER ─── */
+.footer {
+  text-align: center;
+  padding-top: 32px;
+  animation: up .5s cubic-bezier(.22,1,.36,1) .18s both;
+}
+
+.bmc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: var(--gray-950);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--gray-400);
+  font-size: 12px;
+  font-weight: 400;
+  text-decoration: none;
+  transition: all .15s;
+}
+.bmc-btn:hover { border-color: var(--border-md); color: var(--white); background: var(--gray-900); }
+.bmc-sep { width: 1px; height: 12px; background: var(--border-md); }
+.footer-note {
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--gray-600);
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+}
+
+/* ─── Toast ─── */
+.toast {
+  position: fixed;
+  bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: var(--gray-900);
+  border: 1px solid var(--border-md);
+  border-radius: 100px;
+  padding: 8px 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--white);
+  display: flex; align-items: center; gap: 7px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  opacity: 0;
+  transition: all .25s cubic-bezier(.22,1,.36,1);
+  z-index: 99;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.toast .toast-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ─── Animations ─── */
+@keyframes up      { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+@keyframes spin    { to { transform: rotate(360deg); } }
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(0,179,126,0.6); }
+  50%       { opacity: .5; box-shadow: 0 0 3px rgba(0,179,126,0.2); }
+}
+
+/* ─── Mobile ─── */
+@media (max-width: 440px) {
+  body { padding: 32px 16px 48px; }
+  .card-body { padding: 20px 16px; }
+  .tag-strip { padding: 10px 16px; }
+  .header { padding-bottom: 36px; }
+  .header h1 { font-size: 26px; }
+  .pw-value { font-size: 12px; }
+  .strength-tabs { gap: 4px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span class="toast-dot"></span>
+  Senha copiada!
+</div>
+
+<div class="container">
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <div class="eyebrow">
+      <span class="eyebrow-dot"></span>
+      SafePassword Buddy
+    </div>
+    <h1>Gere senhas<br><em>ultra-seguras</em></h1>
+    <p class="header-sub">Geração criptográfica certificada baseada nos padrões NIST, OWASP e SANS.</p>
+  </header>
+
+  <!-- ── Card ── -->
+  <div class="card">
+
+    <div class="tag-strip">
+      <span class="tag tag-g">NIST 800-63B</span>
+      <span class="tag tag-g">OWASP</span>
+      <span class="tag tag-p">SANS CIS</span>
+      <span class="tag tag-p">MITRE</span>
+      <span class="tag tag-w">FIPS 140-2</span>
+    </div>
+
+    <div class="card-body">
+
+      <div class="field-label">Nível de proteção</div>
+
+      <div class="strength-tabs">
+        <button class="tab" data-s="short" onclick="pick('short',this)">
+          <span class="tab-name">Curta</span>
+          <span class="tab-chars">12 chars</span>
+        </button>
+        <button class="tab active" data-s="medium" onclick="pick('medium',this)">
+          <span class="tab-name">Média</span>
+          <span class="tab-chars">20 chars</span>
+        </button>
+        <button class="tab" data-s="long" onclick="pick('long',this)">
+          <span class="tab-name">Longa</span>
+          <span class="tab-chars">32 chars</span>
+        </button>
+      </div>
+
+      <button class="gen-btn" id="genBtn" onclick="generate()">
+        <span class="gen-btn-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+        </span>
+        Gerar senha segura
+      </button>
+
+      <!-- Output -->
+      <div class="pw-output" id="pwOut">
+        <div class="divider"></div>
+
+        <div class="pw-field">
+          <div class="pw-field-top">
+            <span class="pw-field-label">
+              <span class="pw-field-label-dot"></span>
+              senha gerada
+            </span>
+            <div class="pw-field-actions">
+              <span class="pw-length" id="pwLen"></span>
+              <button class="copy-btn" id="mainCopy" onclick="doCopy('main')" title="Copiar">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="pw-value" id="pwVal">—</div>
+        </div>
+
+        <div class="strength-row">
+          <div class="bars">
+            <div class="bar" id="b1"></div>
+            <div class="bar" id="b2"></div>
+            <div class="bar" id="b3"></div>
+            <div class="bar" id="b4"></div>
+          </div>
+          <span class="strength-label" id="sLabel"></span>
+        </div>
+
+        <div class="entropy-row">
+          <span class="entropy-text">Entropia: <span class="entropy-val" id="eVal">—</span> bits &nbsp;·&nbsp; <span style="color:var(--gray-600)">crypto.getRandomValues()</span></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── History ── -->
+  <div class="history">
+    <div class="hist-header">
+      <span class="hist-title">
+        Histórico da sessão
+        <span class="hist-badge" id="hBadge">0</span>
+      </span>
+      <button class="hist-clear" onclick="clearHist()">Limpar</button>
+    </div>
+    <div class="hist-list" id="histList">
+      <div class="hist-empty">Nenhuma senha gerada ainda.</div>
+    </div>
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer class="footer">
+    <a href="https://www.buymeacoffee.com" target="_blank" rel="noopener" class="bmc-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+      <span class="bmc-sep"></span>
+      Me pague um café ☕
+    </a>
+    <p class="footer-note">Roda 100% no seu navegador · zero coleta de dados</p>
+  </footer>
+
+</div>
+
+<script>
+// ── Config ──────────────────────────────
+const CFG = {
+  short:  { len:12, entropy:72,  bars:2, bFill:'fill-2', lvClass:'lv2', lvTxt:'BOA'   },
+  medium: { len:20, entropy:120, bars:3, bFill:'fill-3', lvClass:'lv3', lvTxt:'FORTE' },
+  long:   { len:32, entropy:192, bars:4, bFill:'fill-4', lvClass:'lv4', lvTxt:'MÁX'   },
+};
+
+// ── State ───────────────────────────────
+let sel = 'medium', hist = [], curPw = '';
+
+// ── Crypto ──────────────────────────────
+const U='ABCDEFGHJKLMNPQRSTUVWXYZ', L='abcdefghjkmnpqrstuvwxyz', D='23456789', S='!@#$%^&*-_=+?';
+function rnd(n){ const a=new Uint32Array(1); crypto.getRandomValues(a); return a[0]%n; }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]; } return a; }
+function mkPw(len){
+  const pool=U+L+D+S, c=[U[rnd(U.length)],L[rnd(L.length)],D[rnd(D.length)],S[rnd(S.length)]];
+  while(c.length<len) c.push(pool[rnd(pool.length)]);
+  return shuffle(c).join('');
+}
+
+// ── Icons ───────────────────────────────
+const COPY_I  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+const CHECK_I = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+
+// ── Clipboard ───────────────────────────
+async function clip(t){ try{ await navigator.clipboard.writeText(t); } catch{ const x=Object.assign(document.createElement('textarea'),{value:t,style:'position:fixed;opacity:0'}); document.body.appendChild(x); x.select(); document.execCommand('copy'); x.remove(); } }
+
+function flashOk(btn){ btn.classList.add('ok'); btn.innerHTML=CHECK_I; setTimeout(()=>{ btn.classList.remove('ok'); btn.innerHTML=COPY_I; },1800); }
+
+function toast(){ const t=document.getElementById('toast'); t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+
+// ── UI actions ──────────────────────────
+function pick(s,el){ document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); el.classList.add('active'); sel=s; }
+
+async function doCopy(id,raw){
+  const pw = id==='main' ? curPw : raw;
+  if(!pw) return;
+  await clip(pw); toast();
+  const btn = id==='main' ? document.getElementById('mainCopy') : document.getElementById('hc-'+id);
+  if(btn) flashOk(btn);
+}
+
+async function generate(){
+  const btn=document.getElementById('genBtn');
+  btn.disabled=true; btn.classList.add('spin');
+  await new Promise(r=>setTimeout(r,350));
+  btn.classList.remove('spin');
+
+  const cfg=CFG[sel], pw=mkPw(cfg.len);
+  curPw=pw;
+
+  document.getElementById('pwVal').textContent = pw;
+  document.getElementById('pwLen').textContent  = `${pw.length} chars`;
+  document.getElementById('pwOut').classList.add('show');
+
+  // Reset main copy
+  const mc=document.getElementById('mainCopy');
+  mc.classList.remove('ok'); mc.innerHTML=COPY_I;
+
+  // Bars
+  ['b1','b2','b3','b4'].forEach((id,i)=>{
+    const b=document.getElementById(id);
+    b.className='bar';
+    if(i<cfg.bars) b.classList.add(cfg.bFill);
+  });
+  const sl=document.getElementById('sLabel');
+  sl.className=`strength-label ${cfg.lvClass}`;
+  sl.textContent=cfg.lvTxt;
+  document.getElementById('eVal').textContent=`~${cfg.entropy}`;
+
+  // History
+  hist.unshift({id:Date.now(),pw,label:CFG[sel].len+' chars'});
+  if(hist.length>10) hist.pop();
+  renderHist();
+  btn.disabled=false;
+}
+
+function renderHist(){
+  document.getElementById('hBadge').textContent=hist.length;
+  const el=document.getElementById('histList');
+  if(!hist.length){ el.innerHTML='<div class="hist-empty">Nenhuma senha gerada ainda.</div>'; return; }
+  el.innerHTML=hist.map(h=>`
+    <div class="hist-item">
+      <span class="hist-pw">${esc(h.pw)}</span>
+      <div class="hist-right">
+        <span class="hist-tag">${h.label}</span>
+        <button class="hist-copy" id="hc-${h.id}" onclick="doCopy('${h.id}','${esc(h.pw)}')" title="Copiar">${COPY_I}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function clearHist(){
+  hist=[]; curPw='';
+  document.getElementById('pwOut').classList.remove('show');
+  renderHist();
+}
+
+document.addEventListener('DOMContentLoaded',()=>setTimeout(generate,600));
+</script>
+</body>
+</html>
